@@ -1,0 +1,131 @@
+@import '@fontsource/lilita-one/400.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/800.css';
+
+:root {
+  --red: #d71920; --red2: #ff3b44; --navy: #1b2557; --ink: #0b1020;
+  --glass: rgba(10, 16, 36, 0.62); --line: rgba(255, 255, 255, 0.16);
+  --cyan: #3ad9f5; --gold: #f6b928;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0b1020; color: #fff; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+button { font: inherit; cursor: pointer; border: 0; }
+
+.game-root { position: fixed; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
+.game-root canvas { display: block; }
+.touch-layer { position: absolute; inset: 0; z-index: 1; }
+.hud { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.hud button { pointer-events: auto; }
+
+.display { font-family: 'Lilita One', 'Inter', sans-serif; }
+
+/* ---------- top bar ---------- */
+.topbar { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px; right: 10px; display: flex; gap: 8px; align-items: stretch; }
+.chip { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 14px; padding: 6px 12px; display: flex; flex-direction: column; justify-content: center; color: #fff; }
+.chip small { font-size: 10px; opacity: .7; letter-spacing: .04em; }
+.chip b { font-family: 'Lilita One'; font-size: 20px; font-weight: 400; line-height: 1.05; }
+.timer { flex-direction: row; align-items: center; gap: 6px; font-family: 'Lilita One'; font-size: 22px; }
+.timer.low { background: rgba(200, 20, 30, .75); animation: pulse .6s infinite alternate; }
+.clock { font-size: 16px; }
+.cp { margin-left: auto; text-align: center; }
+.score { text-align: right; min-width: 84px; }
+.pause { width: 44px; align-items: center; font-size: 14px; letter-spacing: -2px; }
+@keyframes pulse { to { transform: scale(1.06); } }
+
+/* ---------- allocation ---------- */
+.alloc { position: absolute; top: calc(max(10px, env(safe-area-inset-top)) + 58px); left: 10px; right: 10px; background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 6px 10px 9px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); max-width: 520px; margin: 0 auto; }
+.alloc-title { text-align: center; font-size: 11px; font-weight: 600; opacity: .85; margin-bottom: 4px; }
+.alloc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.alloc-cell { border-radius: 10px; padding: 4px 6px; transition: background .3s, box-shadow .3s; }
+.alloc-cell.zone { background: color-mix(in srgb, var(--c) 28%, transparent); box-shadow: 0 0 0 1px var(--c) inset; }
+.alloc-head { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; }
+.alloc-head b { color: #55e39b; margin-left: auto; }
+.alloc-num { font-family: 'Lilita One'; font-size: 17px; line-height: 1.1; margin-top: 1px; }
+.alloc-num small { font-size: 11px; opacity: .7; font-family: 'Inter'; font-weight: 600; }
+.bar { height: 6px; border-radius: 4px; background: rgba(255,255,255,.15); overflow: hidden; margin-top: 3px; }
+.bar i { display: block; height: 100%; background: var(--c); border-radius: 4px; transition: width .25s; box-shadow: 0 0 10px var(--c); }
+.alloc-cell.done .bar i { background: #55e39b; box-shadow: 0 0 10px #55e39b; }
+
+/* ---------- banners & floats ---------- */
+.banner { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 12px 22px; border-radius: 16px; background: linear-gradient(180deg, rgba(12,18,40,.88), rgba(12,18,40,.7)); border: 2px solid var(--c); box-shadow: 0 0 30px color-mix(in srgb, var(--c) 50%, transparent); animation: bannerIn 2.3s ease forwards; white-space: nowrap; }
+.banner b { font-family: 'Lilita One'; font-weight: 400; font-size: 26px; display: block; color: var(--c); letter-spacing: .02em; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.banner small { display: block; font-size: 12px; opacity: .9; margin-top: 2px; }
+.banner.zone b { color: #fff; }
+.banner.zone { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, #0c1228), rgba(12,18,40,.8)); }
+.banner.boost { --c: #55e39b; top: 24%; }
+.banner.boost b { color: #ffe08a; }
+.banner.mission { --c: #3ad9f5; }
+.tick { width: 38px; height: 38px; border-radius: 50%; background: #2fbf71; display: grid; place-items: center; font-size: 22px; font-weight: 800; box-shadow: 0 0 16px #2fbf71; }
+@keyframes bannerIn { 0% { opacity: 0; transform: translate(-50%, -14px) scale(.9); } 10% { opacity: 1; transform: translate(-50%, 0) scale(1.04); } 16% { transform: translate(-50%, 0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -8px); } }
+
+.floats { position: absolute; left: 50%; top: 52%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.float { font-family: 'Lilita One'; font-size: 22px; text-shadow: 0 2px 0 rgba(0,0,0,.55), 0 0 12px rgba(0,0,0,.4); animation: floatUp 1.1s ease-out forwards; white-space: nowrap; }
+@keyframes floatUp { 0% { opacity: 0; transform: translateY(16px) scale(.8); } 15% { opacity: 1; transform: translateY(0) scale(1.08); } 100% { opacity: 0; transform: translateY(-46px) scale(1); } }
+
+.powerups { position: absolute; bottom: calc(46px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.pu { padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: 13px; background: var(--glass); border: 1px solid var(--line); }
+.pu.magnet { border-color: #ff7bd1; color: #ffc2ea; }
+.pu.boost { border-color: #ffe08a; color: #ffe08a; }
+.speedlines { position: absolute; inset: 0; background: repeating-conic-gradient(from 0deg at 50% 45%, rgba(255,255,255,.0) 0deg 4deg, rgba(255,255,255,.12) 4deg 5deg); mask: radial-gradient(circle at 50% 45%, transparent 28%, #000 70%); -webkit-mask: radial-gradient(circle at 50% 45%, transparent 28%, #000 70%); animation: spin 0.25s linear infinite; }
+@keyframes spin { to { transform: rotate(3deg); } }
+
+/* ---------- screens ---------- */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: max(18px, env(safe-area-inset-top)) 18px max(26px, env(safe-area-inset-bottom)); pointer-events: auto; }
+.spacer { flex: 1; }
+.cta { font-family: 'Lilita One'; font-size: 26px; color: #fff; letter-spacing: .03em; background: linear-gradient(180deg, var(--red2), var(--red)); padding: 14px 44px; border-radius: 999px; box-shadow: 0 6px 0 #8f0e13, 0 10px 30px rgba(215, 25, 32, .55), inset 0 2px 0 rgba(255,255,255,.35); border: 2px solid rgba(255,255,255,.5); transition: transform .1s; }
+.cta:active { transform: translateY(3px); box-shadow: 0 3px 0 #8f0e13; }
+.ghost { margin-top: 12px; background: transparent; color: #fff; opacity: .85; font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+
+.title { background: linear-gradient(180deg, rgba(8,12,30,.55) 0%, rgba(8,12,30,0) 34%, rgba(8,12,30,0) 62%, rgba(8,12,30,.7) 100%); }
+.brand { align-self: flex-start; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 22px; letter-spacing: -.02em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
+.brand small { font-weight: 600; font-size: 11px; display: block; margin-left: 4px; opacity: .9; }
+.roundel { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 50%, #fff 0 6px, transparent 7px), radial-gradient(circle at 65% 50%, var(--red) 0 6px, transparent 7px), var(--navy); border: 2px solid #fff; }
+.logo-lockup { margin-top: 18px; text-align: center; transform: rotate(-4deg); filter: drop-shadow(0 6px 0 rgba(0,0,0,.25)); }
+.logo-lockup div { font-family: 'Lilita One'; line-height: .92; }
+.l1 { font-size: 54px; color: #fff; background: var(--red); padding: 2px 18px; border-radius: 12px 12px 0 0; display: inline-block; border: 3px solid #fff; border-bottom: 0; }
+.l2 { font-size: 46px; color: var(--navy); background: #fff; padding: 2px 16px; border: 3px solid var(--navy); border-radius: 10px; }
+.l3 { font-size: 56px; color: #fff; background: var(--red); padding: 0 22px 4px; display: inline-block; border-radius: 0 0 14px 14px; border: 3px solid #fff; border-top: 0; }
+.tag { margin-top: 14px; font-weight: 800; font-size: 15px; background: rgba(12,18,40,.6); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); }
+.pillars { display: flex; gap: 8px; margin-top: 18px; }
+.pillars span { background: rgba(27,37,87,.85); border: 1px solid rgba(255,255,255,.25); padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.hint { margin-top: 12px; font-size: 12px; opacity: .85; text-align: center; }
+
+.mission { justify-content: center; background: rgba(8,12,30,.35); }
+.card { width: min(420px, 100%); background: linear-gradient(180deg, rgba(20,30,70,.95), rgba(10,16,40,.95)); border: 2px solid rgba(120,170,255,.5); border-radius: 22px; padding: 20px 18px 22px; box-shadow: 0 0 40px rgba(60,120,255,.35); display: flex; flex-direction: column; align-items: center; }
+.card.small { width: min(320px, 100%); gap: 8px; }
+.card-title { font-family: 'Lilita One'; font-size: 30px; text-align: center; line-height: 1; color: #fff; background: linear-gradient(180deg, var(--red2), var(--red)); padding: 10px 18px; border-radius: 12px; border: 2px solid #fff; transform: rotate(-2deg); margin-bottom: 16px; }
+.card-title span { font-size: 36px; color: #fff; }
+.mix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.mix-cell { border-radius: 14px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid rgba(255,255,255,.25); }
+.mix-cell small { font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+.mix-cell b { font-family: 'Lilita One'; font-weight: 400; font-size: 34px; }
+.m-e { background: linear-gradient(180deg, #2a64d6, #173f97); }
+.m-d { background: linear-gradient(180deg, #8f99a8, #545e6e); }
+.m-g { background: linear-gradient(180deg, #e6a91c, #a8730a); }
+.mixbar { display: flex; width: 100%; height: 26px; border-radius: 999px; overflow: hidden; margin-top: 14px; border: 2px solid rgba(255,255,255,.4); }
+.mixbar i { display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 12px; }
+.card-note { margin-top: 12px; font-size: 13px; text-align: center; font-weight: 600; opacity: .95; }
+.rules { list-style: none; margin: 12px 0 18px; font-size: 12px; opacity: .85; display: grid; gap: 4px; text-align: center; }
+.rules b { color: var(--cyan); }
+
+.paused { justify-content: center; background: rgba(8,12,30,.55); }
+
+.over { background: linear-gradient(180deg, rgba(8,12,30,.25), rgba(8,12,30,.15) 45%, rgba(8,12,30,.75)); }
+.over-sign { align-self: flex-start; background: #1a1a1a; color: #ffb547; border: 2px solid #444; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; }
+.over-sign b { font-size: 14px; }
+.over-title { margin-top: 14px; font-family: 'Lilita One'; font-size: 54px; text-align: center; line-height: .95; color: #fff; -webkit-text-stroke: 2px var(--navy); text-shadow: 0 5px 0 var(--red), 0 9px 20px rgba(0,0,0,.4); transform: rotate(-3deg); }
+.over-reason { margin-top: 10px; font-weight: 800; font-size: 13px; background: rgba(12,18,40,.75); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; width: min(440px, 100%); }
+.stats div { background: rgba(255,255,255,.94); color: var(--ink); border-radius: 14px; padding: 10px 6px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.stats span { font-size: 20px; }
+.stats small { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: #2b3446; }
+.stats b { font-family: 'Lilita One'; font-weight: 400; font-size: 28px; color: var(--red); }
+.newbest { margin-top: 10px; font-family: 'Lilita One'; font-size: 20px; color: #ffe08a; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+
+.disclaimer { position: absolute; bottom: max(6px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 9px; opacity: .55; padding: 0 12px; }
+
+@media (min-width: 900px) {
+  .l1 { font-size: 64px; } .l2 { font-size: 56px; } .l3 { font-size: 68px; }
+  .over-title { font-size: 68px; }
+}
